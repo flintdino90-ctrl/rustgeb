@@ -170,7 +170,9 @@ class ServerModel with ChangeNotifier {
             }
           } else {
             _zeroClientLengthCounter = 0;
-            if (!hideCm) showCmWindow();
+            if (!hideCm && _clients.any((c) => !c.isUnattended)) {
+              showCmWindow();
+            }
           }
         }
       }
@@ -547,6 +549,7 @@ class ServerModel with ChangeNotifier {
         parent.target?.dialogManager.dismissByTag(getLoginDialogTag(client.id));
         final index = _clients.indexWhere((c) => c.id == client.id);
         if (index < 0) {
+          client.isUnattended = true;
           _clients.add(client);
         } else {
           if (_clients[index].authorized) {
@@ -574,7 +577,7 @@ class ServerModel with ChangeNotifier {
         _clients.removeAt(index_disconnected);
         tabController.remove(index_disconnected);
       }
-      if (desktopType == DesktopType.cm && !hideCm) {
+      if (desktopType == DesktopType.cm && !hideCm && !client.isUnattended) {
         showCmWindow();
       }
       scrollToBottom();
@@ -593,11 +596,13 @@ class ServerModel with ChangeNotifier {
         closable: false,
         onTap: () {},
         page: desktop.buildConnectionCard(client)));
-    Future.delayed(Duration.zero, () async {
-      if (!hideCm) windowOnTop(null);
-    });
+    if (!client.isUnattended) {
+      Future.delayed(Duration.zero, () async {
+        if (!hideCm) windowOnTop(null);
+      });
+    }
     // Only do the hidden task when on Desktop.
-    if (client.authorized && isDesktop) {
+    if (client.authorized && isDesktop && !client.isUnattended) {
       cmHiddenTimer = Timer(const Duration(seconds: 3), () {
         if (!hideCm) windowManager.minimize();
         cmHiddenTimer = null;
@@ -832,6 +837,7 @@ class Client {
   bool fromSwitch = false;
   bool inVoiceCall = false;
   bool incomingVoiceCall = false;
+  bool isUnattended = false;
 
   RxInt unreadChatMessageCount = 0.obs;
 
