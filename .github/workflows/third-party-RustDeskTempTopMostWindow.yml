@@ -45,6 +45,10 @@ jobs:
         run: |
           git clone https://github.com/rustdesk-org/RustDeskTempTopMostWindow RustDeskTempTopMostWindow
 
+      - name: Replace default privacy image with custom image
+        run: |
+          cp scripts/custom_privacy_img.cpp RustDeskTempTopMostWindow/WindowInjection/img.cpp
+
       - name: Build the project
         run: |
           cd RustDeskTempTopMostWindow && git checkout ecd8d6a139eee76845ea66423fb739af450fda90
