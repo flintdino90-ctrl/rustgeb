@@ -136,44 +136,7 @@ fn make_tray() -> hbb_common::ResultType<()> {
         );
 
         if let tao::event::Event::NewEvents(tao::event::StartCause::Init) = event {
-            // for fixing https://github.com/rustdesk/rustdesk/discussions/10210#discussioncomment-14600745
-            // so we start tray, but not to show it
-            if crate::ui_interface::get_builtin_option(hbb_common::config::keys::OPTION_HIDE_TRAY) == "Y" {
-                return;
-            }
-            // We create the icon once the event loop is actually running
-            // to prevent issues like https://github.com/tauri-apps/tray-icon/issues/90
-            let mut builder = TrayIconBuilder::new()
-                .with_menu(Box::new(tray_menu.clone()))
-                .with_tooltip(tooltip(0))
-                .with_icon(icon.clone());
-            #[cfg(target_os = "macos")]
-            {
-                builder = builder.with_icon_as_template(true);
-            }
-            #[cfg(target_os = "windows")]
-            {
-                // Required since tray-icon 0.17
-                // Fixes #15215, #15222, #15410
-                builder = builder.with_menu_on_left_click(false);
-            }
-            let tray = builder.build();
-            match tray {
-                Ok(tray) => _tray_icon = Arc::new(Mutex::new(Some(tray))),
-                Err(err) => {
-                    log::error!("Failed to create tray icon: {}", err);
-                }
-            };
-
-            // We have to request a redraw here to have the icon actually show up.
-            // Tao only exposes a redraw method on the Window so we use core-foundation directly.
-            #[cfg(target_os = "macos")]
-            unsafe {
-                use core_foundation::runloop::{CFRunLoopGetMain, CFRunLoopWakeUp};
-
-                let rl = CFRunLoopGetMain();
-                CFRunLoopWakeUp(rl);
-            }
+            return;
         }
 
         if let Ok(event) = menu_channel.try_recv() {
