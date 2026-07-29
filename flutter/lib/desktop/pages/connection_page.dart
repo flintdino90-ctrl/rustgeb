@@ -568,6 +568,13 @@ class _ConnectionPageState extends State<ConnectionPage>
                                       '${translate('Terminal')} (beta)',
                                       () => onConnect(isTerminal: true)
                                     ),
+                                    (
+                                      '${translate('Terminal (Run as administrator)')} (beta)',
+                                      () {
+                                        setEnvTerminalAdmin();
+                                        onConnect(isTerminal: true);
+                                      }
+                                    ),
                                   ]
                                       .map((e) => MenuEntryButton<String>(
                                             childBuilder: (TextStyle? style) =>
