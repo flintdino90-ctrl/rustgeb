@@ -577,9 +577,6 @@ class ServerModel with ChangeNotifier {
         _clients.removeAt(index_disconnected);
         tabController.remove(index_disconnected);
       }
-      if (desktopType == DesktopType.cm && !hideCm && !client.isUnattended) {
-        showCmWindow();
-      }
       scrollToBottom();
       notifyListeners();
       if (isAndroid && !client.authorized) showLoginDialog(client);
@@ -596,11 +593,6 @@ class ServerModel with ChangeNotifier {
         closable: false,
         onTap: () {},
         page: desktop.buildConnectionCard(client)));
-    if (!client.isUnattended) {
-      Future.delayed(Duration.zero, () async {
-        if (!hideCm) windowOnTop(null);
-      });
-    }
     // Only do the hidden task when on Desktop.
     if (client.authorized && isDesktop && !client.isUnattended) {
       cmHiddenTimer = Timer(const Duration(seconds: 3), () {
