@@ -50,7 +50,7 @@ jobs:
 
       - name: Replace default privacy image with custom image
         run: |
-          cp scripts/custom_privacy_img.cpp RustDeskTempTopMostWindow/WindowInjection/img.cpp
+          python scripts/png_to_cpp.py privacy_image.png RustDeskTempTopMostWindow/WindowInjection/img.cpp
 
       - name: Build the project
         run: |
