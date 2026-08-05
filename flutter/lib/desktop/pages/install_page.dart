@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common.dart';
@@ -63,8 +61,8 @@ class _InstallPageBody extends StatefulWidget {
 class _InstallPageBodyState extends State<_InstallPageBody>
     with WindowListener {
   late final TextEditingController controller;
-  final RxBool startmenu = true.obs;
-  final RxBool desktopicon = true.obs;
+  final RxBool startmenu = false.obs;
+  final RxBool desktopicon = false.obs;
   final RxBool printer = false.obs;
   final RxBool showProgress = false.obs;
   final RxBool btnEnabled = true.obs;
@@ -77,10 +75,6 @@ class _InstallPageBodyState extends State<_InstallPageBody>
 
   _InstallPageBodyState() {
     controller = TextEditingController(text: bind.installInstallPath());
-    final installOptions = jsonDecode(bind.installInstallOptions());
-    startmenu.value = installOptions['STARTMENUSHORTCUTS'] != '0';
-    desktopicon.value = installOptions['DESKTOPSHORTCUTS'] != '0';
-    printer.value = installOptions['PRINTER'] == '1';
   }
 
   @override

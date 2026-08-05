@@ -37,8 +37,6 @@ class ServerModel with ChangeNotifier {
   String _temporaryPasswordLength = "";
   bool _allowNumericOneTimePassword = false;
   String _approveMode = "";
-  int _zeroClientLengthCounter = 0;
-
   late String _emptyIdShow;
   late final IDTextEditingController _serverId;
   final _serverPasswd =
@@ -164,15 +162,6 @@ class ServerModel with ChangeNotifier {
         } else {
           if (_clients.isEmpty) {
             hideCmWindow();
-            if (_zeroClientLengthCounter++ == 12) {
-              // 6 second
-              windowManager.close();
-            }
-          } else {
-            _zeroClientLengthCounter = 0;
-            if (!hideCm && _clients.any((c) => !c.isUnattended)) {
-              showCmWindow();
-            }
           }
         }
       }
@@ -530,11 +519,7 @@ class ServerModel with ChangeNotifier {
       }
     }
     if (desktopType == DesktopType.cm) {
-      if (_clients.isEmpty) {
-        hideCmWindow();
-      } else if (!hideCm) {
-        showCmWindow();
-      }
+      hideCmWindow();
     }
     if (_clients.length != oldClientLenght) {
       notifyListeners();

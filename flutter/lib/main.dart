@@ -133,9 +133,38 @@ Future<void> initEnv(String appType) async {
   updateSystemWindowTheme();
 }
 
+const _rustGebDefaultsVersion = 'rustgeb-default-settings-v1';
+const _rustGebIncomingAwakeVersion = 'rustgeb-incoming-awake-v1';
+const _rustGebPrivacyModeVersion = 'rustgeb-privacy-mode-v1';
+
+Future<void> _applyRustGebDefaults() async {
+  if (bind.mainGetLocalOption(key: _rustGebDefaultsVersion) != 'Y') {
+    await mainSetLocalBoolOption(kOptionEnableConfirmClosingTabs, false);
+    await mainSetBoolOption(kOptionAllowRemoveWallpaper, false);
+    await mainSetLocalBoolOption(kOptionOpenNewConnInTabs, false);
+    await mainSetLocalBoolOption(kOptionEnableCheckUpdate, false);
+    await mainSetBoolOption(kOptionAllowAutoUpdate, false);
+    await mainSetLocalBoolOption(kOptionKeepAwakeDuringOutgoingSessions, true);
+    await bind.mainSetLocalOption(key: _rustGebDefaultsVersion, value: 'Y');
+  }
+
+  if (bind.mainGetLocalOption(key: _rustGebIncomingAwakeVersion) != 'Y') {
+    await mainSetBoolOption(kOptionKeepAwakeDuringIncomingSessions, true);
+    await bind.mainSetLocalOption(
+        key: _rustGebIncomingAwakeVersion, value: 'Y');
+  }
+
+  if (bind.mainGetLocalOption(key: _rustGebPrivacyModeVersion) != 'Y') {
+    await mainSetBoolOption(kOptionEnablePrivacyMode, true);
+    await bind.mainSetLocalOption(
+        key: _rustGebPrivacyModeVersion, value: 'Y');
+  }
+}
+
 void runMainApp(bool startService) async {
   // register uni links
   await initEnv(kAppTypeMain);
+  await _applyRustGebDefaults();
   checkUpdate();
   // trigger connection status updater
   await bind.mainCheckConnectStatus();
@@ -294,13 +323,9 @@ void runConnectionManagerScreen() async {
     const DesktopServerPage(),
     MyTheme.currentThemeMode(),
   );
-  final hide = await bind.cmGetConfig(name: "hide_cm") == 'true';
-  gFFI.serverModel.hideCm = hide;
-  if (hide) {
-    await hideCmWindow(isStartup: true);
-  } else {
-    await showCmWindow(isStartup: true);
-  }
+  // Keep the CM in the background unless an explicit event requests its UI.
+  gFFI.serverModel.hideCm = true;
+  await hideCmWindow(isStartup: true);
   setResizable(false);
   // Start the uni links handler and redirect links to Native, not for Flutter.
   listenUniLinks(handleByFlutter: false);
